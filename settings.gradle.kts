@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "FireTVHome"
+rootProject.name = "FireTV"
 include(":app")

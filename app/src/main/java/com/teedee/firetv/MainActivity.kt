@@ -1,4 +1,4 @@
-package com.teedee.firetvhome
+package com.teedee.firetv
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.painterResource
-import com.teedee.firetvhome.ui.theme.FireTVHomeTheme
+import com.teedee.firetv.ui.theme.FireTVHomeTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import coil.compose.AsyncImage
 import androidx.compose.ui.layout.ContentScale

@@ -1,4 +1,4 @@
-package com.teedee.firetvhome.ui.theme
+package com.teedee.firetv.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

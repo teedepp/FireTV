@@ -1,4 +1,4 @@
-package com.teedee.firetvhome
+package com.teedee.firetv
 
 import org.junit.Test
 

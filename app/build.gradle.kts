@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.teedee.firetvhome"
+    namespace = "com.teedee.firetv"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.teedee.firetvhome"
+        applicationId = "com.teedee.firetv"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

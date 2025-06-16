@@ -60,6 +60,9 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.accompanist.pager)
     implementation(libs.accompanist.pager.indicators)
+    implementation(libs.androidx.material3.window.size.class1)
+    implementation(libs.androidx.foundation)
+
 
 
 }

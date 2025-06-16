@@ -16,16 +16,20 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.painterResource
 import com.teedee.firetv.ui.theme.FireTVHomeTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
-import coil.compose.AsyncImage
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import kotlinx.coroutines.delay
+import androidx.compose.ui.draw.clip
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +54,7 @@ fun FireTVHomeScreen() {
         FireTVNavigationBar()
 
         Column(modifier = Modifier.fillMaxSize()) {
-            FireTVCarousel()
+            FireTVAutoCarousel()
             FireTVAppGrid()
         }
     }
@@ -121,42 +125,86 @@ fun FireTVNavigationBar() {
 }
 
 @Composable
-fun FireTVCarousel() {
+fun FireTVAutoCarousel() {
+    val items = listOf(
+        R.drawable.the_peripheral,
+        R.drawable.game_of_thrones,
+        R.drawable.breaking_bad
+    )
 
-    Box(
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { items.size })
+
+    // Auto-scroll every 4 seconds
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(4000)
+            val nextPage = (pagerState.currentPage + 1) % items.size
+            pagerState.animateScrollToPage(nextPage)
+        }
+    }
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp)
+            .height(220.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AsyncImage(
-            model = "https://image.tmdb.org/t/p/w1280/your_image.jpg",
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.matchParentSize()
-        )
-
-        // Optional: glass-like overlay
-        Box(
+        HorizontalPager(
+            state = pagerState,
             modifier = Modifier
-                .matchParentSize()
-                .background(Color(0x99000000)) // semi-transparent overlay
-        )
-
-        Column(
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .padding(16.dp)
-        ) {
-            Text("THE PERIPHERAL", style = MaterialTheme.typography.headlineLarge, color = Color.White)
-            Text("New Episodes Fridays | Prime Video", color = Color.LightGray)
+                .fillMaxWidth()
+                .height(180.dp),
+        ) { page ->
+            Image(
+                painter = painterResource(id = items[page]),
+                contentDescription = "Carousel Item",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(12.dp))
+            )
         }
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(horizontalArrangement = Arrangement.Center) {
+            repeat(items.size) { index ->
+                val isSelected = pagerState.currentPage == index
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .size(if (isSelected) 10.dp else 6.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(if (isSelected) Color.White else Color.Gray)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CarouselItem(imageRes: Int) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .aspectRatio(16f / 9f),
+        contentAlignment = Alignment.BottomStart
+    ) {
+        Image(
+            painter = painterResource(id = imageRes),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
         Text(
-            text = "Wednesday, August 30  |  10:32 PM",
-            color = Color.White,
+            text = "Featured",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
+                .padding(12.dp)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
+                .padding(horizontal = 8.dp, vertical = 4.dp)
         )
     }
 }

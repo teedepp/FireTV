@@ -11,9 +11,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
@@ -63,66 +62,103 @@ fun FireTVHomeScreen() {
 @Composable
 fun FireTVNavigationBar() {
     var selectedItem by remember { mutableIntStateOf(0) }
-    val items = listOf("Inputs", "Home", "Search", "Live TV", "Saved", "Add Apps", "Settings")
+
+    val items = listOf("Inputs", "Home", "Search", "Live TV", "Saved", "Add Apps", "Settings", "FireCircle")
     val icons = listOf(
-        Icons.Default.Home,
-        Icons.Default.Home,
-        Icons.Default.Search,
-        Icons.Default.Home,
-        Icons.Default.Home,
-        Icons.Default.Home,
-        Icons.Default.Home
+        R.drawable.ic_inputs,
+        R.drawable.ic_home,
+        R.drawable.ic_search,
+        R.drawable.ic_livetv,
+        R.drawable.ic_saved,
+        R.drawable.ic_addapps,
+        R.drawable.ic_settings,
+        R.drawable.ic_firecircle
     )
 
     Column(
         modifier = Modifier
-            .fillMaxHeight()
-            .width(200.dp)
-            .background(
-                color = Color(0xAA1C1C1E), // semi-transparent dark
-                shape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
-            )
-            .padding(vertical = 16.dp),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp)
+            .width(150.dp)
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Box(
+        // Profile Icon
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .padding(8.dp)
-                .background(Color.Gray, shape = MaterialTheme.shapes.extraLarge)
-                .size(48.dp)
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        items.forEachIndexed { index, item ->
-            val isSelected = selectedItem == index
-            Row(
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp, vertical = 12.dp)
+                .clip(RoundedCornerShape(30.dp))
+                .background(Color(0xFF1B1B1B)),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ){
+            Box(
                 modifier = Modifier
-                    .padding(vertical = 8.dp)
-                    .background(if (isSelected) Color.White else Color.Transparent)
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-                    .clickable { selectedItem = index },
-                verticalAlignment = Alignment.CenterVertically
+                    .size(35.dp)
+                    .clip(CircleShape)
+                    .background(Color.Gray)
             ) {
-                Icon(
-                    imageVector = icons[index],
-                    contentDescription = item,
-                    tint = if (isSelected) Color.Black else Color.White
+                // Load image if available
+                Image(
+                    painter = painterResource(id = R.drawable.ic_avatar),
+                    contentDescription = "Profile",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(35.dp)
+                        .clip(CircleShape)
+                        .background(Color.Gray) // fallback background
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = item,
-                    color = if (isSelected) Color.Black else Color.White,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text(
+                text = "Trideb Dhar",
+                fontSize = 12.sp,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+        // Sidebar Container
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFF1B1B1B)) // Dark background
+                .padding(vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            items.forEachIndexed { index, label ->
+                val isSelected = selectedItem == index
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (isSelected) Color.White else Color.Transparent)
+                        .clickable { selectedItem = index }
+                        .padding(vertical = 8.dp, horizontal = 12.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = icons[index]),
+                        contentDescription = label,
+                        tint = if (isSelected) Color.Black else Color.Unspecified,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = label,
+                        color = if (isSelected) Color.Black else Color.White,
+                        fontSize = 12.sp
+                    )
+                }
             }
         }
     }
 }
+
 
 @Composable
 fun FireTVAutoCarousel() {

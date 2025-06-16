@@ -183,32 +183,6 @@ fun FireTVAutoCarousel() {
     }
 }
 
-@Composable
-fun CarouselItem(imageRes: Int) {
-    Box(
-        modifier = Modifier
-            .fillMaxHeight()
-            .aspectRatio(16f / 9f),
-        contentAlignment = Alignment.BottomStart
-    ) {
-        Image(
-            painter = painterResource(id = imageRes),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
-        Text(
-            text = "Featured",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier
-                .padding(12.dp)
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-        )
-    }
-}
-
 data class AppInfo(val name: String, val logoResId: Int)
 
 @Composable

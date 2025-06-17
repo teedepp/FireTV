@@ -11,31 +11,32 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.painterResource
-import com.teedee.firetv.ui.theme.FireTVHomeTheme
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import kotlinx.coroutines.delay
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.teedee.firetv.ui.theme.FireTVTheme
+import kotlinx.coroutines.delay
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            FireTVHomeTheme {
+            FireTVTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -49,12 +50,36 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun FireTVHomeScreen() {
-    Row(modifier = Modifier.fillMaxSize()) {
-        FireTVNavigationBar()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+    ) {
+        // Background Image
+        Image(
+            painter = painterResource(id = R.drawable.blurred_bg),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    alpha = 0.9f
+                }
+        )
 
-        Column(modifier = Modifier.fillMaxSize()) {
-            FireTVAutoCarousel()
-            FireTVAppGrid()
+        Row(modifier = Modifier.fillMaxSize()) {
+            FireTVNavigationBar()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 16.dp, top = 32.dp)
+            ) {
+                CurrentDateTime()
+                FireTVAutoCarousel(
+                    modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
+                )
+                FireTVAppGrid()
+            }
         }
     }
 }
@@ -80,33 +105,25 @@ fun FireTVNavigationBar() {
             .padding(16.dp)
             .width(150.dp)
     ) {
-        // Profile Icon
+        // Profile
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 2.dp, vertical = 12.dp)
                 .clip(RoundedCornerShape(30.dp))
-                .background(Color(0xFF1B1B1B)),
+                .background(Color(0xFF292929)),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ){
-            Box(
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_avatar),
+                contentDescription = "Profile",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(35.dp)
                     .clip(CircleShape)
                     .background(Color.Gray)
-            ) {
-                // Load image if available
-                Image(
-                    painter = painterResource(id = R.drawable.ic_avatar),
-                    contentDescription = "Profile",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(35.dp)
-                        .clip(CircleShape)
-                        .background(Color.Gray) // fallback background
-                )
-            }
+            )
 
             Spacer(modifier = Modifier.width(8.dp))
 
@@ -119,12 +136,11 @@ fun FireTVNavigationBar() {
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        // Sidebar Container
         Column(
             modifier = Modifier
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFF1B1B1B)) // Dark background
+                .background(Color(0xFF1B1B1B))
                 .padding(vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -159,9 +175,33 @@ fun FireTVNavigationBar() {
     }
 }
 
+@Composable
+fun CurrentDateTime() {
+    var currentTime by remember { mutableStateOf(getFormattedTime()) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(1000L)
+            currentTime = getFormattedTime()
+        }
+    }
+
+    Text(
+        text = currentTime,
+        style = MaterialTheme.typography.titleMedium,
+        color = Color.White,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+}
+
+fun getFormattedTime(): String {
+    val current = LocalDateTime.now()
+    val formatter = DateTimeFormatter.ofPattern("EEEE, MMM d · h:mm a")
+    return current.format(formatter)
+}
 
 @Composable
-fun FireTVAutoCarousel() {
+fun FireTVAutoCarousel(modifier: Modifier = Modifier) {
     val items = listOf(
         R.drawable.the_peripheral,
         R.drawable.game_of_thrones,
@@ -170,7 +210,6 @@ fun FireTVAutoCarousel() {
 
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { items.size })
 
-    // Auto-scroll every 4 seconds
     LaunchedEffect(Unit) {
         while (true) {
             delay(4000)
@@ -180,7 +219,7 @@ fun FireTVAutoCarousel() {
     }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(220.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -238,7 +277,6 @@ fun FireTVAppGrid() {
         AppInfo("YouTube TV", R.drawable.youtube_tv)
     )
 
-
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier
@@ -251,7 +289,7 @@ fun FireTVAppGrid() {
                 color = Color.White,
                 modifier = Modifier
                     .background(Color.Gray, shape = MaterialTheme.shapes.small)
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                    .padding(horizontal = 12.dp, vertical = 4.dp)
             )
         }
 
@@ -262,8 +300,8 @@ fun FireTVAppGrid() {
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            items(apps) { apps ->
-                AppTile(appName = apps.name, logoResId = apps.logoResId)
+            items(apps) { app ->
+                AppTile(appName = app.name, logoResId = app.logoResId)
             }
         }
     }
@@ -287,4 +325,3 @@ fun AppTile(appName: String, logoResId: Int) {
         )
     }
 }
-

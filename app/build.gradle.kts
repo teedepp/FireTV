@@ -63,6 +63,8 @@ dependencies {
     implementation(libs.androidx.material3.window.size.class1)
     implementation(libs.androidx.foundation)
 
+    implementation(libs.accompanist.systemuicontroller.v0360)
+
 
 
 }

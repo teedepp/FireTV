@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -26,10 +27,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.teedee.firetv.ui.theme.FireTVTheme
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+
+import com.teedee.firetv.api.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,9 +78,13 @@ fun FireTVHomeScreen() {
                     .fillMaxSize()
                     .padding(start = 16.dp, top = 32.dp)
             ) {
-                CurrentDateTime()
+                DateTimeWithWeather(
+                    apiKey = "9f83284d0d4b472403555541e3388014",
+                    city = "Bhubaneswar" // or dynamically detected
+                )
+
                 FireTVAutoCarousel(
-                    modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
+                    modifier = Modifier.padding(top = 8.dp, bottom = 0.dp)
                 )
                 FireTVAppGrid()
             }
@@ -134,7 +142,7 @@ fun FireTVNavigationBar() {
             )
         }
 
-        Spacer(modifier = Modifier.height(18.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Column(
             modifier = Modifier
@@ -169,13 +177,14 @@ fun FireTVNavigationBar() {
                         color = if (isSelected) Color.Black else Color.White,
                         fontSize = 12.sp
                     )
+
                     if (label == "FireCircle") {
                         Spacer(modifier = Modifier.width(6.dp))
                         Icon(
                             painter = painterResource(id = R.drawable.ic_new),
                             contentDescription = "New",
                             tint = Color.Unspecified,
-                            modifier = Modifier.size(20.dp) // Adjusted size for consistency
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
@@ -183,8 +192,47 @@ fun FireTVNavigationBar() {
         }
     }
 }
+
 @Composable
-fun CurrentDateTime() {
+fun WeatherWidget(city: String, apiKey: String) {
+    var weather by remember { mutableStateOf<WeatherResponse?>(null) }
+
+    LaunchedEffect(city) {
+        try {
+            val result = WeatherService.fetchWeather(city, apiKey)
+            println("Weather fetched: $result")
+            weather = result
+        } catch (e: Exception) {
+            println("Failed to fetch weather: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+
+
+    if (weather != null) {
+        val iconUrl = "https://openweathermap.org/img/wn/${weather!!.weather.first().icon}@2x.png"
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 12.dp)
+        ) {
+            AsyncImage(
+                model = iconUrl,
+                contentDescription = weather!!.weather.first().description,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "${weather!!.main.temp}°C",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White
+            )
+        }
+    }
+}
+
+
+@Composable
+fun DateTimeWithWeather(apiKey: String, city: String) {
     var currentTime by remember { mutableStateOf(getFormattedTime()) }
 
     LaunchedEffect(Unit) {
@@ -194,12 +242,19 @@ fun CurrentDateTime() {
         }
     }
 
-    Text(
-        text = currentTime,
-        style = MaterialTheme.typography.titleMedium,
-        color = Color.White,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-    )
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp, vertical = 0.dp),
+        horizontalArrangement = Arrangement.End
+    ) {
+        Text(
+            text = currentTime,
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.White,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+        WeatherWidget(city = city, apiKey = apiKey)
+    }
 }
 
 fun getFormattedTime(): String {
@@ -289,15 +344,22 @@ fun FireTVAppGrid() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.End
+                .padding(horizontal = 16.dp, vertical = 0.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            Text(
+                text = "Your Apps",
+                color = Color.White,
+                fontSize = 12.sp,
+            )
+
             Text(
                 text = "Reorder List",
                 color = Color.White,
+                fontSize = 10.sp,
                 modifier = Modifier
-                    .background(Color.Gray, shape = MaterialTheme.shapes.small)
-                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                    .background(Color.Gray, shape = MaterialTheme.shapes.large)
+                    .padding(horizontal = 8.dp, vertical = 2.dp)
             )
         }
 

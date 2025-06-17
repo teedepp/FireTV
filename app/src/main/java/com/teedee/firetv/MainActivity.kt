@@ -169,12 +169,20 @@ fun FireTVNavigationBar() {
                         color = if (isSelected) Color.Black else Color.White,
                         fontSize = 12.sp
                     )
+                    if (label == "FireCircle") {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_new),
+                            contentDescription = "New",
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(20.dp) // Adjusted size for consistency
+                        )
+                    }
                 }
             }
         }
     }
 }
-
 @Composable
 fun CurrentDateTime() {
     var currentTime by remember { mutableStateOf(getFormattedTime()) }

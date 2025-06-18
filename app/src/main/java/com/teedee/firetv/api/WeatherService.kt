@@ -1,6 +1,7 @@
 // WeatherService.kt
 package com.teedee.firetv.api
 
+import android.content.pm.PackageManager
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -120,11 +121,21 @@ object IpLocationService {
         }) }
     }
 
-    suspend fun fetchCity(): String? {
+    suspend fun fetchCity(context: android.content.Context): String? {
         return try {
+
+
             // Construct the URL with your API key
-//            val apiKey = BuildConfig.OPENWEATHER_API_KEY
-            val apiUrl = "https://ipgeolocation.abstractapi.com/v1/?api_key=7e3621cbbcaa434d8fdfa2789785be49"
+            val applicationInfo = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getApplicationInfo(context.packageName, PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong()))
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
+            }
+            val apiKey2 = applicationInfo.metaData.getString("ABSTRACT_API_KEY")
+
+
+            val apiUrl = "https://ipgeolocation.abstractapi.com/v1/?api_key=$apiKey2"
 
             // Make the GET request and get the HttpResponse
             val httpResponse: HttpResponse = client.get(apiUrl)

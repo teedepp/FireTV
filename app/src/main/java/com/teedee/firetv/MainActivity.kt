@@ -1,6 +1,6 @@
 package com.teedee.firetv
 
-import android.R.attr.shape
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -34,6 +35,7 @@ import com.teedee.firetv.ui.theme.FireTVTheme
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import android.content.pm.ApplicationInfo
 
 import com.teedee.firetv.api.*
 
@@ -56,6 +58,14 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun FireTVHomeScreen() {
+
+    val context = LocalContext.current
+    val applicationInfo = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+        context.packageManager.getApplicationInfo(context.packageName, PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA.toLong()))
+    } else {
+        context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
+    }
+    val apiKey1 = applicationInfo.metaData.getString("OPENWEATHER_API_KEY")
 
     Box(
         modifier = Modifier
@@ -82,7 +92,7 @@ fun FireTVHomeScreen() {
                     .padding(start = 16.dp, top = 32.dp)
             ) {
                 DateTimeWithWeather(
-                    apiKey = "9f83284d0d4b472403555541e3388014",
+                    apiKey = "$apiKey1",
                 )
 
                 FireTVAutoCarousel(
@@ -200,9 +210,9 @@ fun WeatherWidget(apiKey: String) {
 
     var city by remember { mutableStateOf<String?>(null) }
     var weather by remember { mutableStateOf<WeatherResponse?>(null) }
-
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
-        city = IpLocationService.fetchCity()
+        city = IpLocationService.fetchCity(context = context)
     }
 
     LaunchedEffect(city) {

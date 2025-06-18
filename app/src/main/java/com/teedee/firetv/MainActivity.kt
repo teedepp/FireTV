@@ -1,5 +1,7 @@
 package com.teedee.firetv
 
+import android.R.attr.shape
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -54,6 +56,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun FireTVHomeScreen() {
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -80,7 +83,6 @@ fun FireTVHomeScreen() {
             ) {
                 DateTimeWithWeather(
                     apiKey = "9f83284d0d4b472403555541e3388014",
-                    city = "Bhubaneswar" // or dynamically detected
                 )
 
                 FireTVAutoCarousel(
@@ -194,17 +196,20 @@ fun FireTVNavigationBar() {
 }
 
 @Composable
-fun WeatherWidget(city: String, apiKey: String) {
+fun WeatherWidget(apiKey: String) {
+
+    var city by remember { mutableStateOf<String?>(null) }
     var weather by remember { mutableStateOf<WeatherResponse?>(null) }
 
+    LaunchedEffect(Unit) {
+        city = IpLocationService.fetchCity()
+    }
+
     LaunchedEffect(city) {
-        try {
-            val result = WeatherService.fetchWeather(city, apiKey)
-            println("Weather fetched: $result")
-            weather = result
-        } catch (e: Exception) {
-            println("Failed to fetch weather: ${e.message}")
-            e.printStackTrace()
+        if (city == null) return@LaunchedEffect
+        while (true) {
+            weather = WeatherService.fetchWeather(city!!, apiKey)
+            delay(3600000L) // 1 hour
         }
     }
 
@@ -226,13 +231,15 @@ fun WeatherWidget(city: String, apiKey: String) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text=city!!)
         }
     }
 }
 
 
 @Composable
-fun DateTimeWithWeather(apiKey: String, city: String) {
+fun DateTimeWithWeather(apiKey: String) {
     var currentTime by remember { mutableStateOf(getFormattedTime()) }
 
     LaunchedEffect(Unit) {
@@ -253,7 +260,7 @@ fun DateTimeWithWeather(apiKey: String, city: String) {
             color = Color.White,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
-        WeatherWidget(city = city, apiKey = apiKey)
+        WeatherWidget(apiKey = apiKey)
     }
 }
 
@@ -390,8 +397,10 @@ fun AppTile(appName: String, logoResId: Int) {
         Image(
             painter = painterResource(id = logoResId),
             contentDescription = appName,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.fillMaxSize()
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(MaterialTheme.shapes.medium)
         )
     }
 }

@@ -177,6 +177,7 @@ fun FireTVNavigationBar() {
                             tint = Color.Unspecified,
                             modifier = Modifier.size(20.dp)
                         )
+                        launchPartyKey = true
                     }
                 }
             }
@@ -187,7 +188,7 @@ fun FireTVNavigationBar() {
     if (launchPartyKey) {
         LaunchedEffect(Unit) {
             launchPartyKey = false
-            context.startActivity(Intent(context, PartyKeyActivity::class.java))
+            context.startActivity(Intent(context, UserSelectActivity::class.java)) // 🔁 <-- THIS LINE
         }
     }
 }

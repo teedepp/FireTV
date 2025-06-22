@@ -10,6 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.teedee.firetv.ui.theme.FireTVTheme
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
 
 class UserSelectActivity : ComponentActivity() {
 
@@ -19,29 +22,34 @@ class UserSelectActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MaterialTheme {
-                UserSelectionScreen { userId, otherUserId ->
-                    val intent = ChannelActivity.getIntent(
-                        context = this,
-                        channelId = "party-room",
-                        userId = userId,
-                        otherUserId = otherUserId,
-                        callId = "party-room",
-                        apiKey = streamApiKey
-                    )
-                    startActivity(intent)
+            FireTVTheme {
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    UserSelectionScreen { userId, otherUserId ->
+                        val intent = ChannelActivity.getIntent(
+                            context = this,
+                            channelId = "party-room",
+                            userId = userId,
+                            otherUserId = otherUserId,
+                            callId = "party-room",
+                            apiKey = streamApiKey
+                        )
+                        startActivity(intent)
+                    }
                 }
             }
         }
     }
 }
 
+
 @Composable
 fun UserSelectionScreen(onUserSelected: (String, String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(32.dp),
+            .padding(32.dp)
+            .background(Color.White),
+
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

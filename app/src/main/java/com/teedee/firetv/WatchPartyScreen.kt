@@ -12,21 +12,17 @@ import io.getstream.chat.android.compose.ui.theme.ChatTheme
 import io.getstream.chat.android.compose.viewmodel.messages.MessagesViewModelFactory
 
 @Composable
-fun WatchPartyScreen(partyKey: String, userId: String) {
+fun WatchPartyScreen(partyKey: String, userId: String, otherUserId: String) {
     val context = LocalContext.current
-
-    // ✅ REMOVED duplicate initialization - ChatClient is already initialized in FireTVApp
-    // ChatInitializer.init(context, "n6j2nbkgkxt2") // ❌ This was causing the StatePlugin error!
-
     val chatClient = ChatClient.instance()
     val cid = "messaging:${partyKey.lowercase()}"
     var channelCreated by remember { mutableStateOf(false) }
 
-    LaunchedEffect(partyKey) {
+    LaunchedEffect(partyKey, userId, otherUserId) {
         chatClient.createChannel(
             channelType = "messaging",
             channelId = partyKey.lowercase(),
-            memberIds = listOf(userId),
+            memberIds = listOf(userId, otherUserId),
             extraData = mapOf("name" to "Party $partyKey")
         ).enqueue { result ->
             channelCreated = result.isSuccess

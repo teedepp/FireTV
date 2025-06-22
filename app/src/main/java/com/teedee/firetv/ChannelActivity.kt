@@ -8,9 +8,14 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.getstream.chat.android.client.ChatClient
 import io.getstream.chat.android.compose.ui.messages.MessagesScreen
@@ -96,11 +101,14 @@ class ChannelActivity : ComponentActivity() {
             }
 
             // 🔹 Chat column
+            // 🔹 Chat column
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
             ) {
+                var startVideoCall by remember { mutableStateOf(false) }
+
                 ChatTheme(
                     shapes = StreamShapes.defaultShapes().copy(
                         avatar = RoundedCornerShape(8.dp),
@@ -109,16 +117,50 @@ class ChannelActivity : ComponentActivity() {
                         otherMessageBubble = RoundedCornerShape(16.dp)
                     )
                 ) {
-                    MessagesScreen(
-                        viewModelFactory = MessagesViewModelFactory(
-                            context = this@ChannelActivity,
-                            channelId = channelId,
-                            messageLimit = 30
-                        ),
-                        onBackPressed = { finish() }
-                    )
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        // 🧩 Chat UI
+                        MessagesScreen(
+                            viewModelFactory = MessagesViewModelFactory(
+                                context = this@ChannelActivity,
+                                channelId = channelId,
+                                messageLimit = 30
+                            ),
+                            onBackPressed = { finish() }
+                        )
+
+                        // 🎥 Video call button
+                        FloatingActionButton(
+                            onClick = { startVideoCall = true },
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(16.dp),
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_video), // replace with your video icon
+                                contentDescription = "Start Video Call",
+                                tint = Color.White
+                            )
+                        }
+                    }
+                }
+
+                // 🚀 Trigger VideoActivity
+                if (startVideoCall) {
+                    LaunchedEffect(Unit) {
+                        startVideoCall = false
+                        val intent = Intent(this@ChannelActivity, VideoActivity::class.java).apply {
+                            putExtra("userId", userId)
+                            putExtra("token", ChatClient.instance().devToken(userId))
+                            putExtra("callId", callId)
+                            putExtra("apiKey", apiKey)
+                        }
+                        startActivity(intent)
+                    }
                 }
             }
+
+
         }
     }
 

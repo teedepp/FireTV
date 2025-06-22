@@ -16,29 +16,37 @@ class PartyKeyActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val token = intent.getStringExtra("token") ?: ""
+        val otherUserId = intent.getStringExtra("otherUserId") ?: "user2"
 
         setContent {
             MaterialTheme {
                 val navController = rememberNavController()
-                val userId = ChatClient.instance().getCurrentUser()?.id
 
                 NavHost(navController = navController, startDestination = "party") {
                     composable("party") {
-                        PartyKeyScreen(navController)
+                        PartyKeyScreen(navController = navController, otherUserId = otherUserId)
                     }
 
                     composable(
-                        route = "watchparty/{partyKey}",
-                        arguments = listOf(navArgument("partyKey") { type = NavType.StringType })
+                        route = "watchparty/{partyKey}/{otherUserId}",
+                        arguments = listOf(
+                            navArgument("partyKey") { type = NavType.StringType },
+                            navArgument("otherUserId") { type = NavType.StringType }
+                        )
                     ) { backStackEntry ->
                         val partyKey = backStackEntry.arguments?.getString("partyKey") ?: "UNKNOWN"
-                        if (userId != null) {
-                            WatchPartyScreen(userId = userId, partyKey = partyKey)
-                        }
+                        val otherUserId = backStackEntry.arguments?.getString("otherUserId") ?: "user2"
+                        val userId = ChatClient.instance().getCurrentUser()?.id ?: return@composable
+
+                        WatchPartyScreen(
+                            userId = userId,
+                            otherUserId = otherUserId,
+                            partyKey = partyKey
+                        )
                     }
                 }
             }
         }
     }
 }
+

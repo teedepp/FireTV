@@ -50,8 +50,8 @@ class UserSelectActivity : ComponentActivity() {
             if (result.isSuccess) {
                 val intent = Intent(this, PartyKeyActivity::class.java).apply {
                     putExtra("userId", userId)
-                    putExtra("otherUserId", otherUserId) // Also pass otherUserId
                     putExtra("token", devToken)
+                    putExtra("otherUserId", otherUserId)
                 }
                 startActivity(intent)
             } else {

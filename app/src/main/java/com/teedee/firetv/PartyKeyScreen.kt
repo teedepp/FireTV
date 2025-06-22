@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 @Composable
 fun PartyKeyScreen(
     navController: NavController,
+    otherUserId: String,
     viewModel: PartyViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -54,7 +55,7 @@ fun PartyKeyScreen(
 
             Button(onClick = {
                 if (partyKey.isNotBlank()) {
-                    navController.navigate("watchparty/$partyKey")
+                    navController.navigate("watchparty/$partyKey/$otherUserId")
                 } else {
                     Toast.makeText(context, "Enter a valid key", Toast.LENGTH_SHORT).show()
                 }

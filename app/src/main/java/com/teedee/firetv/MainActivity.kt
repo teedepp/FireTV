@@ -126,8 +126,6 @@ fun FireTVNavigationBar() {
             .padding(16.dp)
             .width(150.dp)
     ) {
-        // Profile UI as-is...
-
         Spacer(modifier = Modifier.height(8.dp))
 
         Column(
@@ -151,7 +149,7 @@ fun FireTVNavigationBar() {
                         .clickable {
                             selectedItem = index
                             if (label == "FireCircle") {
-                                launchPartyKey = true
+                                launchPartyKey = true // ✅ Only here!
                             }
                         }
                         .padding(vertical = 8.dp, horizontal = 12.dp)
@@ -177,21 +175,20 @@ fun FireTVNavigationBar() {
                             tint = Color.Unspecified,
                             modifier = Modifier.size(20.dp)
                         )
-                        launchPartyKey = true
                     }
                 }
             }
         }
     }
 
-    // ✅ Launch PartyKeyActivity outside composition scope
     if (launchPartyKey) {
         LaunchedEffect(Unit) {
             launchPartyKey = false
-            context.startActivity(Intent(context, UserSelectActivity::class.java)) // 🔁 <-- THIS LINE
+            context.startActivity(Intent(context, UserSelectActivity::class.java))
         }
     }
 }
+
 
 
 @Composable

@@ -7,6 +7,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.getstream.chat.android.client.ChatClient
@@ -32,82 +35,88 @@ class ChannelActivity : ComponentActivity() {
         val otherUserId = intent.getStringExtra("otherUserId") ?: "user2"
         val callId = intent.getStringExtra("callId") ?: "default-call"
         val apiKey = intent.getStringExtra("apiKey") ?: ""
+        val fullChannelId = "messaging:$channelId"
 
-        val chatClient = ChatClient.instance()
+        ChatInitializer.init(this, apiKey)
 
-        // Connect chat user with dev token
-        chatClient.connectUser(
-            user = io.getstream.chat.android.models.User(id = userId),
-            token = chatClient.devToken(userId)
-        ).enqueue { result ->
-            if (result.isSuccess) {
-                val fullChannelId = "messaging:$channelId"
+        setContent {
+            var channelReady by remember { mutableStateOf(false) }
 
-                // Create or join the chat channel
+            LaunchedEffect(channelId) {
+                val chatClient = ChatClient.instance()
                 val channelClient = chatClient.channel("messaging", channelId)
+
+                // Create or join the channel
                 channelClient.create(
                     memberIds = listOf(userId, otherUserId),
                     extraData = mapOf("name" to "FireTV Party")
                 ).enqueue {
-                    // Launch UI
-                    launchUI(userId, apiKey, callId, fullChannelId)
+                    channelReady = true
                 }
+            }
+
+            if (channelReady) {
+                ChannelScreenUI(userId, apiKey, callId, fullChannelId)
             } else {
-                finish() // Exit if failed
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }
 
-    private fun launchUI(userId: String, apiKey: String, callId: String, channelId: String) {
-        setContent {
-            Row(modifier = Modifier.fillMaxSize()) {
+    @Composable
+    private fun ChannelScreenUI(userId: String, apiKey: String, callId: String, channelId: String) {
+        Row(modifier = Modifier.fillMaxSize()) {
 
-                // 🔹 Video column
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                ) {
-                    val user = User(
-                        id = userId,
-                        name = "FireTV User $userId",
-                        image = "https://bit.ly/2TIt8NR"
+            // 🔹 Video column
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            ) {
+                val user = User(
+                    id = userId,
+                    name = "FireTV User $userId",
+                    image = "https://bit.ly/2TIt8NR"
+                )
+
+                val videoClient = StreamVideoBuilder(
+                    context = applicationContext,
+                    apiKey = apiKey,
+                    geo = GEO.GlobalEdgeNetwork,
+                    user = user,
+                    token = ChatClient.instance().devToken(userId)
+                ).build()
+
+                VideoCallContent(client = videoClient, callId = callId)
+            }
+
+            // 🔹 Chat column
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            ) {
+                ChatTheme(
+                    shapes = StreamShapes.defaultShapes().copy(
+                        avatar = RoundedCornerShape(8.dp),
+                        attachment = RoundedCornerShape(12.dp),
+                        myMessageBubble = RoundedCornerShape(16.dp),
+                        otherMessageBubble = RoundedCornerShape(16.dp)
                     )
-
-                    val videoClient = StreamVideoBuilder(
-                        context = applicationContext,
-                        apiKey = apiKey,
-                        geo = GEO.GlobalEdgeNetwork,
-                        user = user,
-                        token = ChatClient.instance().devToken(userId) // 🔐 Dev token
-                    ).build()
-
-                    VideoCallContent(client = videoClient, callId = callId)
-                }
-
-                // 🔹 Chat column
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
                 ) {
-                    ChatTheme(
-                        shapes = StreamShapes.defaultShapes().copy(
-                            avatar = RoundedCornerShape(8.dp),
-                            attachment = RoundedCornerShape(12.dp),
-                            myMessageBubble = RoundedCornerShape(16.dp),
-                            otherMessageBubble = RoundedCornerShape(16.dp)
-                        )
-                    ) {
-                        MessagesScreen(
-                            viewModelFactory = MessagesViewModelFactory(
-                                context = this@ChannelActivity,
-                                channelId = channelId,
-                                messageLimit = 30
-                            ),
-                            onBackPressed = { finish() }
-                        )
-                    }
+                    MessagesScreen(
+                        viewModelFactory = MessagesViewModelFactory(
+                            context = this@ChannelActivity,
+                            channelId = channelId,
+                            messageLimit = 30
+                        ),
+                        onBackPressed = { finish() }
+                    )
                 }
             }
         }

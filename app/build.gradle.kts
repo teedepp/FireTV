@@ -1,3 +1,5 @@
+import org.gradle.api.JavaVersion
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,6 +9,18 @@ plugins {
 }
 
 android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+
+
+
+
     namespace = "com.teedee.firetv"
     compileSdk = 35
 
@@ -29,16 +43,21 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+    composeOptions {
+        kotlinCompilerExtensionVersion = "2.0.21"
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "io.ktor") {
+            useVersion("2.3.8")
+        }
     }
 }
 
@@ -74,6 +93,19 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coil.compose.v250)
+
+    //stream chat
+
+    implementation(libs.stream.chat.android.offline)
+    implementation("io.getstream:stream-chat-android-compose:6.17.0")
+
+
+    implementation(libs.androidx.material.icons.extended)
+
+    //stream video
+    implementation("io.getstream:stream-video-android-ui-compose:1.8.0")
+
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 
 
 

@@ -1,6 +1,6 @@
 package com.teedee.firetv
 
-import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -35,7 +35,6 @@ import com.teedee.firetv.ui.theme.FireTVTheme
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import android.content.pm.ApplicationInfo
 
 import com.teedee.firetv.api.*
 
@@ -107,6 +106,8 @@ fun FireTVHomeScreen() {
 @Composable
 fun FireTVNavigationBar() {
     var selectedItem by remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
+    var launchPartyKey by remember { mutableStateOf(false) }
 
     val items = listOf("Inputs", "Home", "Search", "Live TV", "Saved", "Add Apps", "Settings", "FireCircle")
     val icons = listOf(
@@ -125,34 +126,7 @@ fun FireTVNavigationBar() {
             .padding(16.dp)
             .width(150.dp)
     ) {
-        // Profile
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 2.dp, vertical = 12.dp)
-                .clip(RoundedCornerShape(30.dp))
-                .background(Color(0xFF292929)),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_avatar),
-                contentDescription = "Profile",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(35.dp)
-                    .clip(CircleShape)
-                    .background(Color.Gray)
-            )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = "Trideb Dhar",
-                fontSize = 12.sp,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
+        // Profile UI as-is...
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -174,7 +148,12 @@ fun FireTVNavigationBar() {
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(if (isSelected) Color.White else Color.Transparent)
-                        .clickable { selectedItem = index }
+                        .clickable {
+                            selectedItem = index
+                            if (label == "FireCircle") {
+                                launchPartyKey = true
+                            }
+                        }
                         .padding(vertical = 8.dp, horizontal = 12.dp)
                 ) {
                     Icon(
@@ -203,7 +182,16 @@ fun FireTVNavigationBar() {
             }
         }
     }
+
+    // ✅ Launch PartyKeyActivity outside composition scope
+    if (launchPartyKey) {
+        LaunchedEffect(Unit) {
+            launchPartyKey = false
+            context.startActivity(Intent(context, PartyKeyActivity::class.java))
+        }
+    }
 }
+
 
 @Composable
 fun WeatherWidget(apiKey: String) {

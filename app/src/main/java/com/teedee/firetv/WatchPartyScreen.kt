@@ -42,7 +42,9 @@ fun WatchPartyScreen(partyKey: String, userId: String, otherUserId: String) {
                         context = context,
                         channelId = cid
                     ),
-                    onBackPressed = {}
+                    onBackPressed = {
+                        context.startActivity(Intent(context, MainActivity::class.java))
+                    }
                 )
             } else {
                 Box(
